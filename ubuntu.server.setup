@@ -1,0 +1,29 @@
+Initial Server Setup with Ubuntu 20.04 LTS (Focal Fossa)
+
+>>>Upgrade Your System
+sudo apt update && sudo apt upgrade -y
+
+>>>Create User Account
+sudo adduser sysadmin
+
+>>>Add the newly created user to the sudo group
+sudo usermod -aG sudo sysadmin
+
+>>>Secure SSH Server
+We recommended changing the default SSH port, it helps you to secure your system from hack attempts. To change default port edit OpenSSH configuration file /etc/ssh/sshd_config and do the following changes.
+Change Default Port – It will be good to change default ssh port as default ports are always on attackers - Port 2222
+Disable Root SSH Login – Also you would like to disable root login via ssh - PermitRootLogin no
+
+>>>Configure Firewall with FirewallD
+sudo apt install firewalld -y
+systemctl start firewalld
+systemctl enable firewalld
+
+firewall-cmd --permanent --add-service=http
+firewall-cmd --permanent --add-service=https
+
+firewall-cmd --permanent --add-port=8080/tcp
+firewall-cmd --permanent --add-port=10000/tcp
+
+firewall-cmd --reload
+firewall-cmd --permanent --list-all

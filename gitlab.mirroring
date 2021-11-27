@@ -1,0 +1,23 @@
+GitlabMirroring
+
+>>>The repository must be accessible over http://, https://, ssh:// or git://.
+
+>>>When using the http:// or https:// protocols, provide the 
+exact URL to the repository. HTTP redirects will not be followed.
+
+>>>Include the username in the URL if 
+required: https://username@gitlab.company.com/group/project.git.
+
+>>>The update action will time out after 180 minutes. For 
+big repositories, use a clone/push combination.
+
+>>>Git LFS objects will be synced if LFS is enabled for the project. Push 
+mirrors will not sync LFS objects over SSH.
+
+>>>In case of pull mirroring, your user will be the author of all events in 
+the activity feed that are the result of an update, like new branches being 
+created or new commits being pushed to existing branches.
+
+>>>GitRespositoryURL: https://aawoyemi142@github.com/aawoyemi142/Hello-America.git
+
+>>>Password: <github access token/github login password>

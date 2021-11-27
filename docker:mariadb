@@ -1,0 +1,17 @@
+CKER: MARIADB INSTALLATION
+
+>>>sudo docker run -d -p 3306:3306 -e MYSQL_ROOT_PASSWORD=password -e MARIADB_ROOT_PASSWORD=password -e MARIADB_USER=mariatestdb -e MARIADB_PASSWORD=password -e  mariadb:10.4 / mysql:latest
+(the command pulls and start mariadb, updating mysql root password, creating a user and password)
+
+>>>Access the mariadb database using mysql/mariadb
+- docker exec -it <container name/ID> mysql/mariadb -u root -p
+
+>>>Create Users in MariaDB (Not necessary since a user has been creating with the docker run)
+CREATE USER maria@localhost IDENTIFIED BY 'password';
+
+>>>Show Users in MariaDB
+SELECT User FROM mysql.user;
+
+MYSQL
+sudo docker run -d -p 3306:3306 -e MYSQL_ROOT_PASSWORD=password -e MYSQL_DATABASE=sonar -e MYSQL_USER=sonar -e MYSQL_PASSWORD=password --name mysql mysql:latest
+

@@ -1,0 +1,34 @@
+HOW TO INSTALL JENKINS
+
+Jenkins runs best with Java11 or higher
+JDK - Server Interface (Development kit only for developers)
+JRE - User Interface (Client use)
+
+>>>Enable Firewall
+sudo ufw allow ssh (22)
+sudo ufw allow 8080 (Jenkins port)
+sudo ufw enable
+sudo ufw status
+
+>>>Install Java 11
+java -version (to see options for available Java if none is installed)
+apt install openjdk-11-jre-headless
+sudo apt update && sudo apt upgrade -y
+java -version
+
+>>>Import the GPG keys of the Jenkins repository
+wget -q -O - https://pkg.jenkins.io/debian/jenkins.io.key | sudo apt-key add -
+
+>>>Add the Jenkins repository to the system
+sudo wget -O /etc/yum.repos.d/jenkins.repo \
+    https://pkg.jenkins.io/redhat-stable/jenkins.repo
+
+>>>Install Jenkins
+sudo apt update && sudo apt upgrade -y
+sudo apt install jenkins
+
+>>>Enable Jenkins installation and Start
+sudo systemctl enable jenkins
+sudo systemctl start jenkins
+sudo systemctl status jenkins
+

@@ -1,0 +1,88 @@
+HOW TO INSTALL SONARQUBE WITH MYSQL
+Java 8 and sonarqube 7.1
+
+>>>Enable Firewall
+sudo ufw allow ssh (22)
+sudo ufw allow 9000 (Sonarqube port)
+sudo ufw enable
+sudo ufw status
+
+sudo apt-get update && sudo apt-get -y upgrade
+
+~ Add Oracle Java repository
+sudo apt install software-properties-common
+sudo add-apt-repository ppa:linuxuprising/java (Best option 09.20.21)
+sudo add-apt-repository ppa:webupd8team/java
+sudo apt-get update
+sudo apt install openjdk-8-jre-headless -y
+java -version
+
+~~
+sudo apt install mysql-server mysql-client -y
+sudo mysql -u root mysql
+ALTER USER 'root'@'localhost' IDENTIFIED BY 'password';
+update user set authentication_string=PASSWORD("password") where User='root';
+FLUSH PRIVILEGES;
+exit
+
+~ Create a new sonar database
+sudo mysql -u root -p
+CREATE DATABASE sonar CHARACTER SET utf8 COLLATE utf8_general_ci;
+
+~ Create a local and a remote user
+CREATE USER sonar@localhost IDENTIFIED BY 'password';
+CREATE USER sonar@'%' IDENTIFIED BY 'password';
+
+~ Create a local and a remote user
+GRANT ALL ON sonar.* TO sonar@localhost;
+GRANT ALL ON sonar.* TO sonar@'%';
+
+~ check users and databases 
+use mysql;
+show databases;
+SELECT User FROM mysql.user;
+FLUSH PRIVILEGES;
+QUIT
+
+~ Download the 7.1 version of SonarQube
+sudo wget https://binaries.sonarsource.com/Distribution/sonarqube/sonarqube-7.1.zip
+sudo apt install -y unzip
+
+~ Unzip the downloaded file.
+sudo unzip sonarqube-7.1.zip -d /opt
+
+cd /opt
+sudo mv sonarqube-7.1 sonar
+sudo vi /opt/sonar/conf/sonar.properties
+
+~ After opening the file make following changes by uncommenting them:
+
+sonar.jdbc.username=your_user
+sonar.jdbc.password=your_password
+sonar.jdbc.url=jdbc:mysql://localhost:3306/sonar?useUnicode=true&characterEncoding=utf8&rewriteBatchedStatements=true&useConfigs=maxPerformance&useSSL=false
+
+~ We need to create a user and group and then change the installation directory rights.
+sudo groupadd sonar
+
+~ Now add the user with directory access
+sudo useradd -c "user to run SonarQube" -d /opt/sonar -g sonar sonar 
+sudo chown sonar:sonar /opt/sonar -R
+
+~ Edit the sonar script file and set RUN_AS_USER
+sudo vi  /opt/sonar/bin/linux-x86-64/sonar.sh
+RUN_AS_USER=sonar
+
+~ Switch to sonar user
+sudo su sonar
+
+~ Move to the script directory
+cd /opt/sonar/bin/linux-x86-64/
+
+~ Run the script to start SonarQube
+./sonar.sh start
+
+~ Get sonarqube status 
+./sonar.sh status
+
+~~ Then try accessing sonarqube from  the url
+ip.ip.ip.ip:9000/

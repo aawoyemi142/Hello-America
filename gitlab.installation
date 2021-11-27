@@ -1,0 +1,25 @@
+GITLAB INSTALLATION
+
+sudo apt update
+
+sudo apt install ca-certificates curl openssh-server postfix
+
+cd /tmp
+
+curl -LO https://packages.gitlab.com/install/repositories/gitlab/gitlab-ce/script.deb.sh
+
+less /tmp/script.deb.sh
+
+clear
+
+sudo bash /tmp/script.deb.sh
+
+sudo apt install gitlab-ce
+
+sudo ufw status
+
+clear
+
+sudo vim /etc/gitlab/gitlab.rb
+
+sudo gitlab-ctl reconfigure
