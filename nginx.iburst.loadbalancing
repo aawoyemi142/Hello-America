@@ -1,0 +1,43 @@
+1.Default Nginx conf. file/sites-available
+
+http {
+    upstream myapp1 {
+        server srv1.example.com;
+        server srv2.example.com;
+        server srv3.example.com;
+    }
+
+    server {
+        listen 80;
+
+        location / {
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_pass http://myapp1;
+        }
+    }
+}
+
+
+
+
+2.Multiple Domains conf with Nginx on Ubuntu
+
+server {
+     listen 80;
+     listen [::]:80;
+     server_name domain-one.com www.domain-one.com;
+
+     root /var/www/domain-one.com/public_html;
+
+     index index.html index.htm;
+
+     location / {
+          try_files $uri $uri/ =404;
+     }
+}
+
+
+3. NTPD
+server ip_address prefer iburst1~
+
+https://nginx.org/en/docs/http/load_balancing.html

@@ -1,0 +1,19 @@
+LINUX TOPICS BEFORE DEBUG
+* Shell Scripting
+* NTP
+* Logical Volume Management
+* File Transfer Protocol (FTP)/VSFTP
+* Backups
+* Automating System Tasks
+* Viewing and managing log file
+
+DEBUG
+* Splunk 
+* Gitlab
+* Jenkins
+* SonarQube
+* Nexus/Tomcat
+* Ansible
+* Terraform
+* Ducker
+* K8 Kubernetes

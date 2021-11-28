@@ -1,0 +1,229 @@
+Using Ubuntu 18.04 Bionic
+
+#>>>Make a directory ansible_playbook
+
+#>>>Create a host file
+vi hosts
+insert the following:
+---
+[slave]
+18.189.11.174
+
+#>>>Create lampstack.yml file
+vi lampstack.yml
+insert the following:
+---
+
+-
+ name: configuring lamp
+ hosts: all
+ become: true
+ vars_files:
+         - vars/default.yml
+
+#>>>mkdir roles and change directory to it
+mkdir -p roles/apache (this creates an apache directory as well)
+cd apache and mkdir handlers
+cd handler and create a file main.yml
+input the following:
+---
+
+- 
+ name: reloading and restarting apache2
+ hosts: all
+ become: true
+ tasks:
+         - name: Reload Apache
+           service:
+                name: apache2
+                state: reloaded
+
+         - name: Restart Apache
+           service:
+                name: apache2
+                state: restarted
+
+
+#>>>mkdir tasks and cd to tasks  TASK
+mkdir file in tasks and cd files
+create a apache.conf.j2 file
+insert the following:
+
+<VirtualHost *:80>
+    ServerAdmin webmaster@localhost
+    ServerName 18.189.11.174   (localhost_IP for slave)
+    ServerAlias www.18.189.11.174
+    DocumentRoot /var/www/18.189.11.174
+    ErrorLog $/var/log/apache2/error.log
+    CustomLog $/var/log/apache2/access.log combined
+
+    <Directory /var/www/18.189.11.174>
+          Options -Indexes
+    </Directory>
+
+    <IfModule mod_dir.c>
+        DirectoryIndex index.php index.html index.cgi index.pl  index.xhtml index.htm    </IfModule>
+
+</VirtualHost>
+
+#>>>create a file main.yml under the tasks directory
+insert the following:
+---
+
+-
+  name: Setting up lamp stack
+  hosts: all
+  become: true
+  tasks:
+
+      - name: Install prerequisites
+        apt: name={{ item }} update_cache=yes state=latest force_apt_get=yes
+        loop: [ 'aptitude' ]
+
+  #Apache Configuration
+      - name: Install Apache and PHP Packages
+        apt: name={{ item }} update_cache=yes state=latest
+        loop: [ 'apache2', 'php', 'php-mysql', 'libapache2-mod-php' ]
+
+      - name: Create document root
+        file:
+            path: "/var/www/18.189.11.174"
+            state: directory
+            owner: "root"
+            mode: '0755'
+
+      - name: Set up Apache virtualhost
+        template:
+            src: "files/apache.conf.j2"
+            dest: "/etc/apache2/sites-available/18.189.11.174.conf"
+
+            # - name: Enable new site
+            #shell: /usr/sbin/18.189.11.174.conf
+
+        # - name: Disable default Apache site
+        #shell: /usr/sbin/18.189.11.174.default.conf
+        #when: disable_default
+        #notify: Reload Apache
+
+  # UFW Configuration
+      - name: "UFW - Allow HTTP on port 80"
+        ufw:
+            rule: allow
+            port: "80"
+            proto: tcp
+
+  # PHP Info Page
+      - name: Sets Up PHP Info Page
+        template:
+            src: "/root/ansible_playbook/roles/apache/tasks/templates/files/info.php.j2"
+            dest: "/var/www/html/info.php"
+
+      - name: Reload Apache
+        service:
+            name: apache2
+            state: reloaded
+
+      - name: Restart Apache
+        service:
+            name: apache2
+            state: restarted
+
+#>>>create a templates directory under tasks dir in apache
+cd templates
+mkdir files inside templates dir
+cd files
+
+Create a info.php.j2 file
+Insert the following:
+<?php
+
+phpinfo();
+
+#>>>Back to the ansible_playbook, cd roles
+mkdir mariadb and cd into it
+mkdir tasks inside mariadb dir
+create a main.yml file inside task in mariadb dir
+vi main.yml
+insert the following
+
+---
+
+-
+ name: Installing MariaDB server
+ hosts: all
+ become: true
+ tasks:
+         - name: Install prerequisites
+           apt: name={{ item }} update_cache=yes state=latest force_apt_get=yes      
+           loop: [ 'aptitude' ]
+
+           #Install MariaDB server
+         - name: Install MariaDB Packages
+           apt: name={{ item }} update_cache=yes state=latest
+           loop: [ 'mariadb-server', 'python3-pymysql' ]
+
+           # Start MariaDB Service
+         - name: Start MariaDB service
+           service:
+                name: mariadb
+                state: started
+
+           #Install Python MySQLdb Module
+         - name: Install the Python MySQLB module
+           apt:
+                name: python-mysqldb
+                state: installed
+
+         - name: Create the flask database
+           mysql_db:
+                name: rootdb
+                state: present
+                login_user: root
+
+           # MariaDB Configuration
+         - name: Sets the root password
+           mysql_user:
+                name: root
+                password: "password"
+                login_unix_socket: /var/run/mysqld/mysqld.sock
+
+         - name: Removes all anonymous user accounts
+           mysql_user:
+                name: ''
+                host_all: yes
+                state: absent
+                login_user: root
+                login_password: "password"
+
+         - name: Removes the MySQL test database
+           mysql_db:
+                name: test
+                state: absent
+                login_user: root
+                login_password: "password"
+
+
+#>>>Back to the ansible_playbook dir
+mkdir vars
+create a default.yml file
+Insert the following:
+
+---
+
+mysql_root_password: "password"
+app_user: "root"
+http_host: "18.189.11.174.com" (http_host IP)
+http_conf: "18.189.11.174.conf"
+http_port: "80"
+disable_default: true
+
+#Run:
+ansible-playbook main.yml in the tasks dir in apache dir
+ansible-playbook main.yml in the tasks dir in mariadb dir
+ansible-playbook lampstack.yml in the ansible_playbook main dir
+
+ansible-playbook playbook.yml -l server1 -u sammy
+
+
+
+

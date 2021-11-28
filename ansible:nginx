@@ -1,0 +1,31 @@
+#NGINX INSTALLATION WITH ANSIBLE PLAYBOOK Taught by Mr. Adeniyi Adeiga
+
+-
+ name: Running command to target machine
+ hosts: Ade             (the IP address or ansible host file)
+ become: true          (run all command as root)
+ tasks: 
+   - name: Install a web service
+     apt:
+         name: apache2
+         state: present            (to start. absent - to stop)
+   - name: copying file to remote server
+     copy:
+         src: /home/adminuser/class (src- source)
+         dest: /home/adminuser/class (dest- destination)
+         owner: root
+         group: adminuser
+         mode: '0644' (0-directory, 644- file permission code)
+   - name: Stop the apache service
+     ansible.builtin.service:
+         name: apache2
+         state: stopped
+
+
+#>>>Run to check syntax
+ansible-playbook *name of yml file* --check
+
+#>>>Run command to perform installation on host
+ansible-playbook *name of yml file* 
+
+

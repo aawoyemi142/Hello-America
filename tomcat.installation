@@ -1,0 +1,117 @@
+#TOMCAT INSTALLATION
+#USING JAVA 8 OR HIGHER & UBUNTU 20.04
+
+#>>>Tomcat status/version check
+sudo tomcatup 
+
+#>>>Update and create a user 
+sudo apt update && sudo apt upgrade -y       
+sudo adduser tomcat -m -d /opt/tomcat -U -s /bin/false tomcat (name and group:tomcat)
+sudo usermod -aG sudo tomcat
+
+#>>>Insatll firewall/enable firewall
+sudo apt install firewalld -y
+systemctl start firewalld
+systemctl enable firewalld
+firewall-cmd --permanent --add-service=http  
+firewall-cmd --permanent --add-service=https 
+firewall-cmd --permanent --add-service=ssh   
+firewall-cmd --permanent --add-port=8080/tcp 
+firewall-cmd --permanent --add-port=10000/tcp
+firewall-cmd --permanent --add-port=22/tcp
+firewall-cmd --reload
+firewall-cmd --permanent --list-all 
+
+#>>>Install Java
+sudo apt update && sudo apt upgrade -y
+java -version (to show the list of installed/available java)
+sudo apt install default-jdk -y (Highest version)
+java -version
+
+#>>>Install Tomcat 10
+sudo wget https://www-us.apache.org/dist/tomcat/tomcat-10/v10.0.8/bin/apache-tomcat-10.0.8.tar.gz 
+
+#>>>Extract the dowloaded archieve and copy all content to tomcat home directory
+sudo tar xzvf apache-tomcat-10*tar.gz -C /opt/tomcat --strip-components=1
+
+#>>>Set proper file permissions
+sudo chown -R tomcat:tomcat /opt/tomcat/ 
+sudo chmod -R u+x /opt/tomcat/bin 
+
+#>>>Create Tomcat user
+sudo nano /opt/tomcat/conf/tomcat-users.xml
+
+#>>>Add the following to the file
+<!-- user manager can access only manager section -->
+<role rolename="manager-gui" />
+<user username="manager" password="_SECRET_PASSWORD_" roles="manager-gui" />
+
+<!-- user admin can access manager and admin section both -->
+<role rolename="admin-gui" />
+<user username="admin" password="_SECRET_PASSWORD_" roles="manager-gui,admin-gui" />
+
+#save and close: wq!
+
+#>>>Enable Remote System Tomcat Access (Editing manager)
+sudo nano /opt/tomcat/webapps/manager/META-INF/context.xml
+
+#>>>Comment Out the section added for IP address restriction 
+   to allow connection from anywhere.
+<!-- <Valve className="org.apache.catalina.valves.RemoteAddrValve"
+         allow="127\.\d+\.\d+\.\d+|::1|0:0:0:0:0:0:0:1" /> -->
+
+#>>>Similarly Edit content.xml for host manager
+sudo nano /opt/tomcat/webapps/host-manager/META-INF/context.xml
+
+#>>>Comment Out the section added for IP address restriction 
+   to allow connection from anywhere.
+<!--<Valve className="org.apache.catalina.valves.RemoteAddrValve"
+         allow="127\.\d+\.\d+\.\d+|::1|0:0:0:0:0:0:0:1" /> -->
+
+#>>>Create a Tomcat Systemd Unit File
+sudo nano /etc/systemd/system/tomcat.service
+
+[Unit]
+Description=Tomcat
+After=network.target
+
+[Service]
+Type=forking
+
+User=tomcat
+Group=tomcat
+
+Environment="JAVA_HOME=/usr/lib/jvm/java-1.11.0-openjdk-amd64"
+Environment="JAVA_OPTS=-Djava.security.egd=file:///dev/urandom"
+Environment="CATALINA_BASE=/opt/tomcat"
+Environment="CATALINA_HOME=/opt/tomcat"
+Environment="CATALINA_PID=/opt/tomcat/temp/tomcat.pid"
+Environment="CATALINA_OPTS=-Xms512M -Xmx1024M -server -XX:+UseParallelGC"
+
+ExecStart=/opt/tomcat/bin/startup.sh
+ExecStop=/opt/tomcat/bin/shutdown.sh
+
+[Install]
+WantedBy=multi-user.target
+
+
+#>>>Reload systemd daemon service, start, & check status
+sudo systemctl daemon-reload
+sudo systemctl enable tomcat.service 
+sudo systemctl start tomcat.service
+sudo systemctl status tomcat.service
+
+#>>>Access Tomcat WI (Web Interface)
+http://00.00.00.00:8080/
+
+#Click on Host Manager or directly type /host-manager
+http://00.00.00.00:8080/host-manager/
+
+
+#Source:
+https://tecadmin.net/how-to-install-tomcat-10-on-ubuntu-20-04/
+
+
+CONGRATULATIONS
+
+~

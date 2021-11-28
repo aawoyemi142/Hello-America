@@ -1,0 +1,148 @@
+#DOCKER
+*what is docker? what is a container?  **docker vs virtual machine  ***docker installation
+*main commands **debugging a container ***developing with container 
+*docker compose - running multiple services **dockerfile - building own docker image ***private docker repository (AWS)
+*deploying the containerized app **volume - persisting data *** volumes demo
+
+Docker is the foundation for K8-one
+Docker is a platform for building and deploying(shipping)  application.
+Virtual machine is a set of infrastructure that needs hypervisor (virtual box/vm ware/hypre-v/ oracle vm/ citrix xenServer)
+#DOCKER: application >>> OS kernel >>> Hardware (Have just application
+VM: application and os kernel >>> hardware
+
+#Differences:
+DOCKER: docker images are smaller (megabytes), docker container run faster
+VM: vm of any host can run on any OS 
+
+#Docker engine: main source where you can run your servers on your laptop
+#Docker container is a way to package application with all the necessary dependencies and configuration.
+It is a portable artifact, easily shared and moved around
+
+differnces betweeb docker container vs virtual machine
+>All containers (app1-gitlab, app2-jenkins, app3-sonarqube) run on the machine
+>>virtual machines uses the cpu port and memory while docker 
+>>>efficiency: docker is more efficeint (uses less memory/storage) but virtual machine is not
+>>>>docker could use same image to create multiple machines/apps but virtual machine 
+have to create different image for each machine/apps
+
+#hub.docker.com
+ 
+docker engine ---> docker image---> docker container
+
+docker rmi <image id> (rmi - remove) - for image
+docker rm <imade id> (rm - remoce) - for container
+#docker run -d -p 8080:80 --name maria nginx 
+(-d daemon/detach- to run in the background, -p - port, maria- name of the container)
+
+8080:80 (8080-host port for image4- open to the world,80-container port)
+
+><><docker exec  -it <docker imade id/name> /bin/bash ( -it - interact, /bin/bash - shell)
+
+Developer (create arftifects, instructions, jar file) --->> operations (install and run the application) 
+
+#CONTAINERS is a running environment for IMAGE
+containers is made up of:
+>layers of images
+>linux base image, small size
+
+#APPLICATION IMAGE: postgres, redis, mongo, etc
+PORT BINDED: communicate with application running inside of container PORT 5000
+
+#PORT BINDING
+docker run -d -p6000:6379
+
+docker image: actaul package from the hub; artifacts that can be moved around - NOT RUNNING
+docker container: actually start the application; container running - RUNNING
+
+#COMMON COMMANDS
+- docker run/pull <application name>  (run - installs and start the application, pulls the application without running)
+e.g: docker run postgres:10.10 (:10.10 different version from the latest) 
+- docker ps (to list all currently running containers)
+- docker ps -a (all running and not running containers)
+- docker run -d <image name/id> ( shows container ID)
+- docker stop <docker id/name> (stop container)
+- docker start <docker id/name> (to start all previously stopped containers)
+- docker images (list all images)
+- docker tag <image name/id> (tag - rename an image)
+- docker inspect <container name/ID> (inspect a container)
+
+#COMMANDS FOR TROUBLESHOOTING
+- docker logs <container id/name> 
+- docker run -d -p6000:6379   
+- docker exec -it <container id/name> /bin/bash (to interact from a particular conatainer)
+- env (to show container information)
+
+#DOCKER NETWORKS
+docker creates its isolated networks where the containers run and it makes the containers
+to communicate with each other because 
+
+nodejs<>mongoDb<>mongo express UI
+
+- docker network ls
+- docker network create mongo-network (create a new network)
+- docker run -d -p 8080:80 --name yellow --network emeka nginx 
+(creating a container and attaching a network with it)
+- docker network inspect <container name/ID> (inspect a container)
+
+#HOW TO CREATE MONGODB ON DOCKER
+docker run -p 27017:27017 -d -e MONGO_INITDB_ROOT_USERNAME=admin 
+-e MONGO_INITDB_ROOT_PASSWORD=password --name mongodb --net mongo-network mongo
+
+docker run -d  \ (detach mode)
+-p 27017:27017 \ (opening port)
+-e MONGO_INITDB_ROOT_USERNAME=admin \
+-e MONGO_INITDB_ROOT_PASSWORD=password
+--name mongodb \ <specifed container name>
+--net mongo-network \ (network name)
+mongo (image)
+
+#CONNECT NODEJS(server.js) WITH MONGODD DATABASE
+
+#DOCKER COMPOSE: takes care of creating common network. 
+Helps to be able to merge two or more containers on the same network together.
+- docker-compose -f mongo.yaml up (-f: file)
+- node server.js <to start application>
+- docker-compose -f mongo.yaml down (stop all containers and also remove the network)
+-docker-compose --version
+
+#DOCKER FILE
+Blueprint for creating docker images
+
+docker build -t my-app:1.0 .
+docker run my-app:1.0 
+
+#DOCKER REGISTRY: to save different tags(versions)  of the same image
+-amazon ECR (elastic container registry)
+-digital ocean
+
+>>>create private repository on AWS
+>>>search for elastic container registry
+>>>login to private repository (to execute the command, you need AWS CLI installed and credentials configured)
+
+#NAMING IN DOCKER REGISTRY
+registry domain/image name: tag
+
+
+#DOCKER VOLUMES: used for data persistency; automatically replicate data
+folder where physical host file is attached
+
+#TYPES OF VOLUME AND HOW TO CREATE THEM
+- docker volume create <name for the new volume>
+- docker run -d -p 8082:80 --name purple --network peju -v peju nginx
+(creating a container while attaching a volume and a network)
+- docker volume ls
+
+#DOCKER VOLUME PATH: /var/lib/docker/volumes
+Internal volume: /var/lib/docker/volumes
+external volume: 
+
+
+8f91359f1fff: Already exist  (layer/dependencies necessary for both version from the previously installed container exists)
+ 
+
+
+
+#QUESTIONS:
+How do you enable containers to keep running in the background even after a change of ip address?
+
+
